@@ -1,4 +1,4 @@
-package org.inu.localpushalarm
+package org.inu.localpushalarm.receiver
 
 import android.annotation.SuppressLint
 import android.app.NotificationChannel
@@ -8,11 +8,11 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.os.Build
-import android.util.Log
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
+import org.inu.localpushalarm.R
+import org.inu.localpushalarm.activity.MainActivity
 import java.time.LocalDateTime
-import java.util.*
 
 class AlarmReceiver : BroadcastReceiver() {
     companion object {
@@ -50,7 +50,6 @@ class AlarmReceiver : BroadcastReceiver() {
             PendingIntent.getActivity(context, 0, resultIntent, PendingIntent.FLAG_UPDATE_CURRENT)
         with(NotificationManagerCompat.from(context)) {
             val build = NotificationCompat.Builder(context, NOTIFICATION_CHANNEL_ID)
-                // todo title 과  content 를 MainActivity().변수명 으로 가져올 수 있는지 확인 해야함
                 .setContentIntent(pendingIntent)
                 .setContentTitle("$ONOFF_KEY 번 이벤트임다")
                 .setContentText("새우버거 가져가세요~!!.")

@@ -1,4 +1,4 @@
-package org.inu.localpushalarm
+package org.inu.localpushalarm.activity
 
 import android.app.AlarmManager
 import android.app.PendingIntent
@@ -9,7 +9,12 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import androidx.activity.viewModels
 import androidx.databinding.DataBindingUtil
+import org.inu.localpushalarm.receiver.AlarmReceiver
+import org.inu.localpushalarm.R
 import org.inu.localpushalarm.databinding.ActivityMainBinding
+import org.inu.localpushalarm.model.AlarmDisplayModel
+import org.inu.localpushalarm.observe
+import org.inu.localpushalarm.viewmodel.MainViewModel
 import java.util.*
 
 class MainActivity : AppCompatActivity() {
@@ -53,7 +58,7 @@ class MainActivity : AppCompatActivity() {
             if (newModel.onOff) {
                 // On -> 알람 등록
                 val calendar = Calendar.getInstance().apply {
-                    val from = if (ONOFF_KEY == "1") "2022-02-17 01:35:00" else "2022-02-17 01:35:00"
+                    val from = if (ONOFF_KEY == "1") "2022-02-17 02:06:00" else "2022-02-17 02:06:00"
                     time = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.KOREA).parse(from)
                 }
                 val alarmManager = getSystemService(Context.ALARM_SERVICE) as AlarmManager

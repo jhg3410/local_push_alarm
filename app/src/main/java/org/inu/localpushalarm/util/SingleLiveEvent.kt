@@ -1,4 +1,4 @@
-package org.inu.localpushalarm
+package org.inu.localpushalarm.util
 
 import android.util.Log
 import androidx.annotation.MainThread

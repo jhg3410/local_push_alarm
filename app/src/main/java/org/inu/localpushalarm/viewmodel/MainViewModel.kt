@@ -1,8 +1,10 @@
-package org.inu.localpushalarm
+package org.inu.localpushalarm.viewmodel
 
 
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import org.inu.localpushalarm.R
+import org.inu.localpushalarm.util.SingleLiveEvent
 
 class MainViewModel: ViewModel() {
     val alarmClickEvent = SingleLiveEvent<Any>()

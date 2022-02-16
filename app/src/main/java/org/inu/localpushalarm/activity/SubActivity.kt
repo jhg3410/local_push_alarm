@@ -1,10 +1,11 @@
-package org.inu.localpushalarm
+package org.inu.localpushalarm.activity
 
 import android.content.Intent
 import android.icu.text.SimpleDateFormat
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.AppCompatButton
+import org.inu.localpushalarm.R
 import java.util.*
 
 class SubActivity : AppCompatActivity() {
@@ -23,19 +24,15 @@ class SubActivity : AppCompatActivity() {
         setContentView(R.layout.activity_sub)
 
         firstButton.setOnClickListener {
-            val intent = Intent(this,MainActivity::class.java)
+            val intent = Intent(this, MainActivity::class.java)
             intent.putExtra("eventId",1)
             startActivity(intent)
         }
         secondButton.setOnClickListener {
-            val intent2 = Intent(this,MainActivity::class.java).apply {
+            val intent2 = Intent(this, MainActivity::class.java).apply {
                 putExtra("eventId", 2)
             }
             startActivity(intent2)
         }
-    }
-
-    fun createID(): Int {
-        return SimpleDateFormat("ddHHmmss", Locale.KOREA).format(Date()).toInt()
     }
 }

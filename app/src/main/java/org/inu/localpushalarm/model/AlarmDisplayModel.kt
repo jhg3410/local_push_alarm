@@ -1,4 +1,4 @@
-package org.inu.localpushalarm
+package org.inu.localpushalarm.model
 
 data class AlarmDisplayModel(
     var onOff: Boolean
