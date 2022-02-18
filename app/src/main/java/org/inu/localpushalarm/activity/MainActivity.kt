@@ -11,12 +11,14 @@ import android.graphics.drawable.ColorDrawable
 import android.graphics.drawable.InsetDrawable
 import android.icu.text.SimpleDateFormat
 import android.os.Bundle
+import android.util.Log
 import android.view.WindowManager
 import android.widget.TextView
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.AppCompatButton
 import androidx.databinding.DataBindingUtil
+import org.inu.localpushalarm.AlarmDialog
 import org.inu.localpushalarm.R
 import org.inu.localpushalarm.databinding.ActivityMainBinding
 import org.inu.localpushalarm.model.AlarmDisplayModel
@@ -31,8 +33,10 @@ class MainActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMainBinding
 
     // 각 이벤트마다 다르게 SharedPreferences 키를 다르게 하기 위해
-    var ONOFF_KEY: String = (-1).toString()
-    // 중복 알람을 허용하게 하기 위해 alarm_request_code 를 매 초마다 다르게
+    private var ONOFF_KEY: String = (-1).toString()
+
+    private val dialog = AlarmDialog()
+    private var backFromAlarm = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -66,12 +70,12 @@ class MainActivity : AppCompatActivity() {
             val newModel = saveAlarmModel(model.onOff.not())
             renderView(newModel)
             if (newModel.onOff) {
-                showDialog("알림신청","알림 신청이 완료 되었습니다\n" +
+                dialog.showDialog(this,"알림신청","알림 신청이 완료 되었습니다\n" +
                         "행사 5분전에 푸쉬 드릴게요 :)")
                 // On -> 알람 등록
                 val calendar = Calendar.getInstance().apply {
                     val from =
-                        if (ONOFF_KEY == "1") "2022-02-17 02:06:00" else "2022-02-17 02:06:00"
+                        if (ONOFF_KEY == "1") "2022-02-19 05:08:40" else "2022-02-20 02:06:00"
                     time = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.KOREA).parse(from)
                 }
                 val alarmManager = getSystemService(Context.ALARM_SERVICE) as AlarmManager
@@ -88,7 +92,7 @@ class MainActivity : AppCompatActivity() {
                     pendingIntent
                 )
             } else {
-                showDialog("알림취소","알림을 정말 취소하시겠어요?\n" +
+                dialog.showDialog(this,"알림취소","알림을 정말 취소하시겠어요?\n" +
                         "ㅠ0ㅠ")
                 // Off -> 알람 제거
                 cancelAlarm()
@@ -151,32 +155,15 @@ class MainActivity : AppCompatActivity() {
         pendingIntent?.cancel()
     }
 
-    private fun showDialog(title:String, content: String ) {
-        val customLayout = layoutInflater.inflate(R.layout.dialog_alarm, null)
-        val build = AlertDialog.Builder(this).apply {
-            setView(customLayout)
-        }
-        val dialog = build.create()
-        val inset = InsetDrawable(ColorDrawable(Color.TRANSPARENT), 20)
+    override fun onBackPressed() {
+        super.onBackPressed()
+        backFromAlarm = intent.getBooleanExtra("backFromAlarm",false)
+        Log.d("????",backFromAlarm.toString())
+        if (backFromAlarm) {
 
-//        val width = resources.getDimensionPixelSize(R.dimen.popup_width)
-//        val height = resources.getDimensionPixelSize(R.dimen.popup_height)
-//        dialog.window!!.setLayout(dialog.window!!.attributes.width, WindowManager.LayoutParams.WRAP_CONTENT)
-        with(dialog) {
-            setCanceledOnTouchOutside(false)
-            setCancelable(false)
-            with(window!!) {
-                setBackgroundDrawableResource(R.drawable.dialog_alarm_background)
-                setBackgroundDrawable(inset)
-            }
-            show()
-            findViewById<TextView>(R.id.alarm_dialog_title).text = title
-            findViewById<TextView>(R.id.alarm_dialog_content).text = content
-            findViewById<AppCompatButton>(R.id.alarm_dialog_button).setOnClickListener {
-                dialog.dismiss()
-            }
+            startActivity(Intent(this,SubActivity::class.java))
+            finish()
         }
-
     }
 
     companion object {

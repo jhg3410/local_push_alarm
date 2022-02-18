@@ -19,6 +19,7 @@ class AlarmReceiver : BroadcastReceiver() {
         const val NOTIFICATION_CHANNEL_ID = "1000"
         const val NOTIFICATION_CHANNEL_NAME = "UniLetter"
     }
+
     lateinit var ONOFF_KEY: String
 
 
@@ -43,7 +44,8 @@ class AlarmReceiver : BroadcastReceiver() {
     @SuppressLint("NewApi")
     private fun notifyNotification(context: Context) {
         val resultIntent = Intent(context, MainActivity::class.java).apply {
-             flags =  Intent.FLAG_ACTIVITY_CLEAR_TASK
+            flags = Intent.FLAG_ACTIVITY_CLEAR_TASK
+            putExtra("backFromAlarm", true)
 //            flags = Intent.FLAG_ACTIVITY_NEW_TASK
         }
         val pendingIntent: PendingIntent =
