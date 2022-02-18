@@ -1,21 +1,29 @@
 package org.inu.localpushalarm.activity
 
 import android.app.AlarmManager
+import android.app.AlertDialog
+import android.app.Dialog
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
+import android.graphics.Color
+import android.graphics.drawable.ColorDrawable
+import android.graphics.drawable.InsetDrawable
 import android.icu.text.SimpleDateFormat
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.view.WindowManager
 import androidx.activity.viewModels
+import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.widget.AppCompatButton
 import androidx.databinding.DataBindingUtil
-import org.inu.localpushalarm.receiver.AlarmReceiver
 import org.inu.localpushalarm.R
 import org.inu.localpushalarm.databinding.ActivityMainBinding
 import org.inu.localpushalarm.model.AlarmDisplayModel
 import org.inu.localpushalarm.observe
+import org.inu.localpushalarm.receiver.AlarmReceiver
 import org.inu.localpushalarm.viewmodel.MainViewModel
 import java.util.*
+
 
 class MainActivity : AppCompatActivity() {
     private val viewModel: MainViewModel by viewModels()
@@ -52,18 +60,22 @@ class MainActivity : AppCompatActivity() {
 
     private fun initOnOffButton() {
         observe(viewModel.alarmClickEvent) {
+            // Dialog Floating!
+            showDialog()
+
             val model = binding.onOffButton.tag as? AlarmDisplayModel ?: return@observe
             val newModel = saveAlarmModel(model.onOff.not())
             renderView(newModel)
             if (newModel.onOff) {
                 // On -> 알람 등록
                 val calendar = Calendar.getInstance().apply {
-                    val from = if (ONOFF_KEY == "1") "2022-02-17 02:06:00" else "2022-02-17 02:06:00"
+                    val from =
+                        if (ONOFF_KEY == "1") "2022-02-17 02:06:00" else "2022-02-17 02:06:00"
                     time = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.KOREA).parse(from)
                 }
                 val alarmManager = getSystemService(Context.ALARM_SERVICE) as AlarmManager
                 val intent = Intent(this, AlarmReceiver::class.java)
-                intent.putExtra("ONOFF_KEY",binding.ONOFFKEY.text)
+                intent.putExtra("ONOFF_KEY", binding.ONOFFKEY.text)
                 val pendingIntent = PendingIntent.getBroadcast(
                     // 이렇게하면 계속 쌓이기에 ONOFF_KEY 로 하면 각 eventId에 맞게 업데이트
                     this, ONOFF_KEY.toInt(), intent, PendingIntent.FLAG_UPDATE_CURRENT
@@ -134,6 +146,32 @@ class MainActivity : AppCompatActivity() {
             PendingIntent.FLAG_NO_CREATE
         )
         pendingIntent?.cancel()
+    }
+
+    private fun showDialog() {
+        val customLayout = layoutInflater.inflate(R.layout.dialog_alarm, null)
+        val build = AlertDialog.Builder(this).apply {
+            setView(customLayout)
+        }
+        val dialog = build.create()
+        val inset = InsetDrawable(ColorDrawable(Color.TRANSPARENT), 20)
+
+//        val width = resources.getDimensionPixelSize(R.dimen.popup_width)
+//        val height = resources.getDimensionPixelSize(R.dimen.popup_height)
+//        dialog.window!!.setLayout(dialog.window!!.attributes.width, WindowManager.LayoutParams.WRAP_CONTENT)
+        with(dialog) {
+            setCanceledOnTouchOutside(false)
+            setCancelable(false)
+            with(window!!) {
+                setBackgroundDrawableResource(R.drawable.dialog_alarm_background)
+                setBackgroundDrawable(inset)
+            }
+            show()
+            findViewById<AppCompatButton>(R.id.dialog_button).setOnClickListener {
+                dialog.dismiss()
+            }
+        }
+
     }
 
     companion object {
