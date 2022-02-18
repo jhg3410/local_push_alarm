@@ -12,6 +12,7 @@ import android.graphics.drawable.InsetDrawable
 import android.icu.text.SimpleDateFormat
 import android.os.Bundle
 import android.view.WindowManager
+import android.widget.TextView
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.AppCompatButton
@@ -61,12 +62,12 @@ class MainActivity : AppCompatActivity() {
     private fun initOnOffButton() {
         observe(viewModel.alarmClickEvent) {
             // Dialog Floating!
-            showDialog()
-
             val model = binding.onOffButton.tag as? AlarmDisplayModel ?: return@observe
             val newModel = saveAlarmModel(model.onOff.not())
             renderView(newModel)
             if (newModel.onOff) {
+                showDialog("알림신청","알림 신청이 완료 되었습니다\n" +
+                        "행사 5분전에 푸쉬 드릴게요 :)")
                 // On -> 알람 등록
                 val calendar = Calendar.getInstance().apply {
                     val from =
@@ -87,6 +88,8 @@ class MainActivity : AppCompatActivity() {
                     pendingIntent
                 )
             } else {
+                showDialog("알림취소","알림을 정말 취소하시겠어요?\n" +
+                        "ㅠ0ㅠ")
                 // Off -> 알람 제거
                 cancelAlarm()
             }
@@ -148,7 +151,7 @@ class MainActivity : AppCompatActivity() {
         pendingIntent?.cancel()
     }
 
-    private fun showDialog() {
+    private fun showDialog(title:String, content: String ) {
         val customLayout = layoutInflater.inflate(R.layout.dialog_alarm, null)
         val build = AlertDialog.Builder(this).apply {
             setView(customLayout)
@@ -167,7 +170,9 @@ class MainActivity : AppCompatActivity() {
                 setBackgroundDrawable(inset)
             }
             show()
-            findViewById<AppCompatButton>(R.id.dialog_button).setOnClickListener {
+            findViewById<TextView>(R.id.alarm_dialog_title).text = title
+            findViewById<TextView>(R.id.alarm_dialog_content).text = content
+            findViewById<AppCompatButton>(R.id.alarm_dialog_button).setOnClickListener {
                 dialog.dismiss()
             }
         }

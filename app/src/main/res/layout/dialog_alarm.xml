@@ -9,6 +9,7 @@
     <!--    android:layout_marginBottom="23dp"-->
 
     <TextView
+        android:id="@+id/alarm_dialog_title"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
@@ -20,18 +21,20 @@
         android:textSize="14sp" />
 
     <TextView
+        android:id="@+id/alarm_dialog_content"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
         android:padding="1dp"
+        android:gravity="center"
         android:layout_marginTop="16dp"
         android:lineHeight="23dp"
-        android:text="알람 신청이 완료되었습니다\n행사 5분전에 푸쉬 드릴게요:)"
+        android:text="알림 신청이 완료 되었습니다\n행사 5분전에 푸쉬 드릴게요 :)"
         android:textColor="@color/black"
         android:textSize="16sp" />
 
     <androidx.appcompat.widget.AppCompatButton
-        android:id="@+id/dialog_button"
+        android:id="@+id/alarm_dialog_button"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_marginHorizontal="16dp"
