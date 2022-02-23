@@ -24,7 +24,10 @@ import org.inu.localpushalarm.databinding.ActivityMainBinding
 import org.inu.localpushalarm.model.AlarmDisplayModel
 import org.inu.localpushalarm.observe
 import org.inu.localpushalarm.receiver.AlarmReceiver
+import org.inu.localpushalarm.util.AlarmForm
+import org.inu.localpushalarm.util.SharedPreferenceWrapper
 import org.inu.localpushalarm.viewmodel.MainViewModel
+import org.json.JSONArray
 import java.util.*
 
 
@@ -33,8 +36,10 @@ class MainActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMainBinding
 
     // 각 이벤트마다 다르게 SharedPreferences 키를 다르게 하기 위해
-    private var ONOFF_KEY: String = (-1).toString()
+    private var eventID: Int = -1
 
+//    var dateArr : ArrayList<String> = ArrayList()
+//    var idArr : ArrayList<String> = ArrayList()
     private val dialog = AlarmDialog()
     private var backFromAlarm = false
 
@@ -54,7 +59,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun getIntentValue() {
-        ONOFF_KEY = intent.getIntExtra("eventId", -1).toString()
+        eventID = intent.getIntExtra("fromSub", -1)
     }
 
     private fun initBinding() {
@@ -64,6 +69,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun initOnOffButton() {
+
         observe(viewModel.alarmClickEvent) {
             // Dialog Floating!
             val model = binding.onOffButton.tag as? AlarmDisplayModel ?: return@observe
@@ -73,29 +79,12 @@ class MainActivity : AppCompatActivity() {
                 dialog.showDialog(this,"알림신청","알림 신청이 완료 되었습니다\n" +
                         "행사 5분전에 푸쉬 드릴게요 :)")
                 // On -> 알람 등록
-                val calendar = Calendar.getInstance().apply {
-                    val from =
-                        if (ONOFF_KEY == "1") "2022-02-19 05:08:40" else "2022-02-20 02:06:00"
-                    time = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.KOREA).parse(from)
-                }
-                val alarmManager = getSystemService(Context.ALARM_SERVICE) as AlarmManager
-                val intent = Intent(this, AlarmReceiver::class.java)
-                intent.putExtra("ONOFF_KEY", binding.ONOFFKEY.text)
-                val pendingIntent = PendingIntent.getBroadcast(
-                    // 이렇게하면 계속 쌓이기에 ONOFF_KEY 로 하면 각 eventId에 맞게 업데이트
-                    this, ONOFF_KEY.toInt(), intent, PendingIntent.FLAG_UPDATE_CURRENT
-                )
-
-                alarmManager.set(
-                    AlarmManager.RTC_WAKEUP,
-                    calendar.timeInMillis,
-                    pendingIntent
-                )
+                AlarmForm(this, eventID = eventID).registerAlarmInMain("2022-02-23 09:12:40")
             } else {
                 dialog.showDialog(this,"알림취소","알림을 정말 취소하시겠어요?\n" +
                         "ㅠ0ㅠ")
                 // Off -> 알람 제거
-                cancelAlarm()
+                AlarmForm(this, eventID = eventID).cancelAlarm()
             }
         }
     }
@@ -106,7 +95,7 @@ class MainActivity : AppCompatActivity() {
         )
         val sharedPreferences = getSharedPreferences(SHARED_PREFERENCES_NAME, Context.MODE_PRIVATE)
         with(sharedPreferences.edit()) {
-            putBoolean(ONOFF_KEY, model.onOff)
+            putBoolean(eventID.toString(), model.onOff)
             commit()
         }
         return model
@@ -114,14 +103,14 @@ class MainActivity : AppCompatActivity() {
 
     private fun fetchDataFromSharedPreferences(): AlarmDisplayModel {
         val sharedPreferences = getSharedPreferences(SHARED_PREFERENCES_NAME, Context.MODE_PRIVATE)
-        val onOffDBValue = sharedPreferences.getBoolean(ONOFF_KEY, false)
+        val onOffDBValue = sharedPreferences.getBoolean(eventID.toString(), false)
         val alarmModel = AlarmDisplayModel(
             onOff = onOffDBValue
         )
-//         보정 예외처리
+        //  보정 예외처리
         val pendingIntent = PendingIntent.getBroadcast(
             this,
-            ONOFF_KEY.toInt(),
+            eventID.toInt(),
             Intent(this, AlarmReceiver::class.java),
             PendingIntent.FLAG_NO_CREATE
         )
@@ -142,18 +131,9 @@ class MainActivity : AppCompatActivity() {
         binding.onOffButton.tag = model
 
         // 어느 이벤트에서 온지 확인을 위한 구문
-        binding.ONOFFKEY.text = ONOFF_KEY
+        binding.ONOFFKEY.text = eventID.toString()
     }
 
-    private fun cancelAlarm() {
-        val pendingIntent = PendingIntent.getBroadcast(
-            this,
-            ONOFF_KEY.toInt(),
-            Intent(this, AlarmReceiver::class.java),
-            PendingIntent.FLAG_NO_CREATE
-        )
-        pendingIntent?.cancel()
-    }
 
     override fun onBackPressed() {
         super.onBackPressed()
