@@ -12,6 +12,7 @@ import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import org.inu.localpushalarm.R
 import org.inu.localpushalarm.activity.MainActivity
+import org.inu.localpushalarm.service.BootService
 import org.inu.localpushalarm.util.SharedPreferenceWrapper
 import org.json.JSONArray
 import java.time.LocalDateTime
@@ -30,7 +31,6 @@ class AlarmReceiver : BroadcastReceiver() {
         val db = SharedPreferenceWrapper(context)
         val dateArr = db.getArrayString("date") ?: arrayOf()
         val idArr = db.getArrayInt("id") ?: arrayOf()
-
 
 
         if (intent.action == "android.intent.action.BOOT_COMPLETED") {
@@ -56,6 +56,8 @@ class AlarmReceiver : BroadcastReceiver() {
             return
         }
 
+        context.startService(Intent(context,BootService::class.java))
+        context.stopService(Intent(context,BootService::class.java))
         getIntentValue(intent)
         createNotificationChannel(context)
         notifyNotification(context)
